@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Drag and Drop Font Example</title>
+    <style>
+		.content {
+			margin: auto;
+			padding: 1rem;
+		}
+    .drop-area {
+        border: 2px dashed #ccc;
+        padding: 1rem;
+        text-align: center;
+        cursor: pointer;
+        margin: 0.5rem;
+    }
+
+    .arena {
+      font-size: 24px;
+      display:flex;
+    }
+
+    .fighter {
+			flex: 1;
+    }
+
+		.fighter-vote-button {
+      text-align: center;
+      padding: 1rem;
+			margin: 0.5rem;
+      background-color: #EEEEEE;
+      cursor: pointer
+    }
+
+		.fighter-vote-button:hover {
+      padding: 1rem;
+			margin: 0.5rem;
+      background-color: #AAAAAA;
+      cursor: pointer
+    }
+
+		.fighter-text {
+			padding: 1rem;
+			margin: 0.5rem;
+			border: thick solid #000000
+		}
+    </style>
+</head>
+<body>
+	<div class="content">
+    <button onclick="start_pvp()"> Start!</button>
+    <button onclick="clear_participants()"> Clear!</button>
+    <button onclick="check()"> Check!</button>
+		<div id="drop-area" class="drop-area">
+			<p>Drag and drop a font file here</p>
+		</div>
+		
+		
+		<div class="arena">
+      <div class="fighter">
+        <div class="fighter-vote-button" onclick="vote_fighter(0)">THIS ONE</div>
+        <div id="fighter-text-left" class="fighter-text" contenteditable="true">
+          <p>This is some text using the dropped font.</p>
+        </div>
+      </div>
+			
+      <div class="fighter">
+        <div class="fighter-vote-button" onclick="vote_fighter(1)">THIS ONE</div>
+        <div id="fighter-text-right" class="fighter-text" contenteditable="true">
+          <p>This is some text using the dropped font.</p>
+        </div>
+      </div>
+		</div>
+	</div>
+
+		
+  <script src="fvf.js"></script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+body {
+  background-color: lightblue;
+  font-size: 1.5rem;
+}
+
+.story {
+}
+
+.passages {
+  margin: auto;
+
+  max-width: 55rem;
+}
+.dialog {
+  border: solid 0.2rem;
+  color: black;
+  margin-left: 1rem;
+  padding: 1rem;
+}
+
+.dialog img{
+  max-width: 5rem;
+  color: black;
+  border: solid 0.1rem;
+  padding: 0.0rem;
+}
