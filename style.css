@@ -11,8 +11,9 @@
 }
 
 #arena {
-  font-size: 24px;
-  display:flex;
+  font-size: 2rem;
+  display: flex;
+  line-height: 1rem;
 }
 
 .fighter {

@@ -6,9 +6,10 @@
 </head>
 <body>
 	<div id="content">
-    <button onclick="start_pvp()"> Start!</button>
-    <button onclick="goto_state_prepare()"> Reset!</button>
-    <button onclick="check()"> Check!</button>
+
+    <button id="start-btn" class="button" onclick="start_pvp()"> Start!</button>
+    <button id="reset-btn" class="button" onclick="goto_state_prepare()"> Reset!</button>
+    <button id="check-btn" class="button" onclick="check()"> Check!</button>
 		<div id="drop-area">
 			<p>Drag and drop a font file here</p>
 		</div>
@@ -18,15 +19,15 @@
     </div>
 		
 		<div id="arena">
-      <div class="fighter">
-        <div class="fighter-vote-button" onclick="vote_fighter(0)">THIS ONE</div>
+      <div id="fighter-left" class="fighter">
+        <div id="fighter-vote-left" class="fighter-vote-button" onclick="vote_fighter(0)">THIS ONE</div>
         <div id="fighter-text-left" class="fighter-text" contenteditable="true">
           <p>This is some text using the dropped font.</p>
         </div>
       </div>
 			
-      <div class="fighter">
-        <div class="fighter-vote-button" onclick="vote_fighter(1)">THIS ONE</div>
+      <div id="fighter-right" class="fighter">
+        <div id="fighter-vote-right" class="fighter-vote-button" onclick="vote_fighter(1)">THIS ONE</div>
         <div id="fighter-text-right" class="fighter-text" contenteditable="true">
           <p>This is some text using the dropped font.</p>
         </div>

@@ -5,7 +5,22 @@
 //
 const html_drop_area = document.getElementById('drop-area');
 const html_signboard = document.getElementById('signboard');
-const html_fighter_text_areas = [document.getElementById('fighter-text-left'), document.getElementById('fighter-text-right')];
+
+// Fighter html elements
+const html_fighter_text_left = document.getElementById('fighter-text-left');
+const html_fighter_text_right = document.getElementById('fighter-text-right');
+const html_fighter_left = document.getElementById('fighter-left');
+const html_fighter_right = document.getElementById('fighter-right');
+const html_fighter_vote_left = document.getElementById('fighter-vote-left');
+const html_fighter_vote_right = document.getElementById('fighter-vote-right');
+
+// Buttons
+const html_start_btn = document.getElementById('start-btn');
+const html_reset_btn = document.getElementById('reset-btn');
+const html_check_btn = document.getElementById('check-btn');
+
+
+
 const html_arena = document.getElementById('arena');
 const html_participant_list = document.getElementById('participant-list');
 
@@ -15,36 +30,52 @@ const html_participant_list = document.getElementById('participant-list');
 let all_participants = [] // all possible participants
 let current_participants = []
 let next_participants  = []
-let fighters = [] ; // only up to 2
+let fighter_left = "";
+let fighter_right = "";
 
 //
 // MARK:(States)
 //
 function goto_state_prepare() {
-    html_drop_area.removeAttribute("style");
-    html_arena.style.display = "none";
-    html_participant_list.removeAttribute("style");
-    set_sign("");
-    all_participants = [];
-    document.fonts.clear()
-    current_participants = [];
-    html_participant_list.innerHTML = "";
-    fighters = ["test", "test"] 
+  html_start_btn.removeAttribute("style");
+  html_fighter_right.removeAttribute("style");
+  html_fighter_vote_left.removeAttribute("style");
+  html_drop_area.removeAttribute("style");
+  html_participant_list.removeAttribute("style");
+  html_arena.removeAttribute("style");
+
+  html_arena.style.display = "none";
+  set_sign("");
+  all_participants = [];
+  document.fonts.clear()
+  current_participants = [];
+  html_participant_list.innerHTML = "";
 }
 
 function goto_state_battle() {
-    html_drop_area.style.display = "none";
-    html_arena.style.display = "flex";
-    html_arena.style.opacity = 1;
-    
-    html_participant_list.style.display = "none";
-    set_sign("Battle!");
+  html_drop_area.style.display = "none";
+  html_arena.style.display = "flex";
+  html_start_btn.style.display = "none";
+
+  html_participant_list.style.display = "none";
+  set_sign("Battle!");
 }
 
 function goto_state_win() {
-    set_sign("Winner: " + current_participants[0]);
+
+  let winner = current_participants[0];
+  set_sign("Winner: " + winner);
+  set_left_fighter(winner);
+
+  html_arena.style.display = "block";
+  html_fighter_right.style.display = "none";
+  html_fighter_vote_left.style.display = "none";
 }
 
+
+//
+// Main functions
+//
 function set_sign(text) {
   html_signboard.innerHTML = text;
 }
@@ -71,8 +102,8 @@ function start_pvp() {
 
   shuffle_array(current_participants);
 
-  set_fighter(0, current_participants.shift());
-  set_fighter(1, current_participants.shift());
+  set_left_fighter(current_participants.shift());
+  set_right_fighter(current_participants.shift());
 
   goto_state_battle();
 
@@ -100,8 +131,8 @@ function advance_pvp_stage() {
     goto_state_win();
   }
   else {
-    set_fighter(0, current_participants.shift());
-    set_fighter(1, current_participants.shift());
+    set_left_fighter(current_participants.shift());
+    set_right_fighter(current_participants.shift());
   }
 
 }
@@ -109,21 +140,27 @@ function advance_pvp_stage() {
 function check() {
   console.log(all_participants);
   console.log(current_participants);
-  console.log(fighters);
+  console.log(fighter_left);
+  console.log(fighter_right);
   console.log(next_participants);
 }
 
 function vote_fighter(index) {
-  if (index == 0 || index == 1) {
-    next_participants.push(fighters[index]);
-  }
+  if (index == 0)
+    next_participants.push(fighter_left);
+  else if (index == 1) 
+    next_participants.push(fighter_right);
   advance_pvp_stage();
 }
 
+function set_left_fighter(font_name) {
+  fighter_left = font_name;
+  html_fighter_text_left.style.fontFamily = font_name;
+}
 
-function set_fighter(index, font_name) {
-  fighters[index] = font_name;
-  html_fighter_text_areas[index].style.fontFamily = font_name;
+function set_right_fighter(font_name) {
+  fighter_right = font_name;
+  html_fighter_text_right.style.fontFamily = font_name;
 }
 
 html_drop_area.addEventListener('dragover', (e) => {
@@ -167,15 +204,12 @@ html_drop_area.addEventListener('drop', (e) => {
 //
 // Synchronize content between the text containers
 // 
-html_fighter_text_areas.forEach((e) => {
-  e.addEventListener('input', () => {
-    html_fighter_text_areas.forEach((ee) => {
-      if (e != ee) {
-        ee.innerHTML = e.innerHTML;
-      }
-    });
-  });
+html_fighter_text_left.addEventListener('input', () => {
+  html_fighter_text_right.innerHTML = html_fighter_text_left.innerHTML; 
+});
 
+html_fighter_text_right.addEventListener('input', () => {
+  html_fighter_text_left.innerHTML = html_fighter_text_right.innerHTML; 
 });
 
 goto_state_prepare();
