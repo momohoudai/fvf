@@ -1,7 +1,20 @@
+body {
+  font-family: Verdana;
+  font-size: 1rem;
+}
+
+#header {
+  font-size: 2rem;
+  text-align: center;
+  margin: 0.5rem;
+  padding: 1rem;
+}
+
 #content {
   margin: auto;
   padding: 1rem;
 }
+
 #drop-area {
   border: 2px dashed #ccc;
   padding: 1rem;
@@ -15,6 +28,28 @@
   display: flex;
   line-height: 1rem;
 }
+
+#nav {
+  display: flex;
+}
+
+.button:disabled {
+  font-color: #AAAAAA;
+
+}
+.button {
+  text-align: center;
+  margin: 0.5rem;
+  padding: 1rem;
+  cursor: pointer;
+  background-color: #EEEEEE;
+  flex: 1;
+}
+
+.button:hover {
+  background-color: #AAAAAA;
+}
+
 
 .fighter {
   flex: 1;
