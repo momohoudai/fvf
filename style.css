@@ -1,53 +1,63 @@
 body {
   font-family: Verdana;
   font-size: 1rem;
+  background-color: #161612;
+  color: #aa9374;
 }
 
-#header {
-  font-size: 2rem;
+.header {
+  font-size: 3rem;
   text-align: center;
   margin: 0.5rem;
   padding: 1rem;
+  color: #bc8a34;
 }
 
-#content {
+.content {
   margin: auto;
   padding: 1rem;
 }
 
-#drop-area {
-  border: 2px dashed #ccc;
+.drop_area {
+  border: 2px dashed #aa9374;
   padding: 1rem;
   text-align: center;
+  font-size: 1.5rem;
   cursor: pointer;
   margin: 0.5rem;
 }
 
-#arena {
+.arena {
   font-size: 2rem;
   display: flex;
-  line-height: 1rem;
+  line-height: 2.5rem;
 }
 
-#nav {
+.nav {
   display: flex;
 }
 
-.button:disabled {
-  font-color: #AAAAAA;
-
+.nav_button:disabled {
+  pointer-events: none;
+  background-color: #aaaaaa;
+  color: #bbbbbb;
 }
-.button {
+
+.nav_button {
+  background-color: #AAAA44;
+  border: none;
   text-align: center;
   margin: 0.5rem;
   padding: 1rem;
+  font-size: 2rem;
   cursor: pointer;
-  background-color: #EEEEEE;
   flex: 1;
+  color: #000000;
 }
 
-.button:hover {
-  background-color: #AAAAAA;
+
+.nav_button:hover {
+  background-color: #6B8E23;
 }
 
 
@@ -55,34 +65,33 @@ body {
   flex: 1;
 }
 
-.fighter-vote-button {
+.fighter_vote_button {
+  background-color: #AAAA44;
+  color: #000;
   text-align: center;
   padding: 1rem;
   margin: 0.5rem;
-  background-color: #EEEEEE;
   cursor: pointer
 }
 
-.fighter-vote-button:hover {
-  padding: 1rem;
-  margin: 0.5rem;
-  background-color: #AAAAAA;
-  cursor: pointer
+.fighter_vote_button:hover {
+  background-color: #6B8E23;
 }
 
-.fighter-text {
+.fighter_text {
   padding: 1rem;
   margin: 0.5rem;
-  border: thick solid #000000
+  border: thick solid #888
 }
-#signboard {
+
+.signboard {
+  color: #a26ca2;
   padding: 1rem;
   margin: 0.5rem;
   text-align: center;
-  font-size: 3rem;
-  font-family: Consolas, monospace;
+  font-size: 2.5rem;
 }
-#participant-list {
+.participant_list {
   padding: 1rem;
   margin: 0.5rem;
   text-align: center;

@@ -1,28 +1,202 @@
+//
+// This is an attempt to write a js library used to build HTML like ReactJS
+//
+function tag(name, ...children) 
+{
+  const result = document.createElement(name);
+  for (const child of children) {
+    if (typeof(child) === 'string') {
+      result.appendChild(document.createTextNode(child));
+    }
+    else {
+      result.appendChild(child);
+    }
+  }
 
+  result.attr = function(n, v) {
+    if (typeof(v) === "undefined") {
+      this.removeAttribute(n); 
+    }
+    else {
+      this.setAttribute(n,v);
+    }
+    return this;
+  }
+
+  result.on_click = function(callback) {
+    this.onclick = callback;
+    return this;
+  }
+
+  result.on_event = function(n, callback) {
+    //TODO: removeEventListener. We have to store the callback somehow
+    this.addEventListener(n, callback);
+    return this;
+  }
+
+  return result;
+}
+
+const tag_types = ["div", "img", "h1", "h2", "h3", "span", "p", "button", "hr"]
+for (const type of tag_types) {
+  window[type] = (...children) => tag(type, ...children)
+}
 
 //
 // MARK:(HTML)
 //
-const html_drop_area = document.getElementById('drop-area');
-const html_signboard = document.getElementById('signboard');
+
+
+
+
+//
+// Synchronize content between the text containers
+// 
+
+// header
+const header = 
+  div("Font vs Font!")
+    .attr("class", "header");
+  
+// nav
+const start_btn = 
+  button("START")
+    .attr("class", "nav_button")
+    .on_click(start_pvp);
+
+const reset_btn = 
+  button("RESET")
+    .attr("class", "nav_button")
+    .on_click(goto_state_prepare);
+
+const nav = 
+  div(start_btn, reset_btn)
+    .attr("class", "nav");
+
+
+// drop area
+const drop_area = 
+  div(
+    p("Drag and drop font files here for them to participate!"),
+    p("(We need at least 2 fonts!)")
+  )
+  .attr("class", "drop_area")
+  .on_event('drop', (e) => {
+    e.preventDefault();
+    drop_area.style.border = '2px dashed #aa9374';
+
+    for (const file of e.dataTransfer.files) {
+      const reader = new FileReader();
+      const name = remove_extention(file.name);
+
+      // Now we load the file.
+      reader.onload = (event) => {
+        const font_data = event.target.result;
+        const new_font = new FontFace(name, font_data);
+
+        new_font.load().then((loaded_font) => {
+          // Adding participants
+          document.fonts.add(loaded_font);
+          all_participants.push(name);
+          participant_list.innerHTML += name + "<br>";
+
+
+          if (all_participants.length >= 2) {
+            start_btn.attr("disabled");
+            reset_btn.attr("disabled");
+          }
+        });
+      }
+
+      reader.readAsArrayBuffer(file);
+    };
+
+  })
+  .on_event('dragleave', () => {
+    drop_area.style.border = '2px dashed #aa9374';
+  })
+  .on_event('dragover', (e) => {
+    e.preventDefault();
+    drop_area.style.border = '2px dashed #aa9374';
+  });
+
+
+// signboard
+const signboard = 
+  div()
+    .attr("class", "signboard");
+
+// participant list
+const participant_list = 
+  div()
+    .attr("class", "participant_list");
+
+// arena
+const fighter_vote_left =
+  div("THIS ONE")
+    .attr("class", "fighter_vote_button")
+    .on_click(() => vote_fighter(0) );
+
+const fighter_vote_right =
+  div("THIS ONE")
+    .attr("class", "fighter_vote_button")
+    .on_click(() => vote_fighter(1) );
+
+const fighter_text_left =
+  div("This is some text")
+    .attr("class", "fighter_text")
+    .attr("contenteditable", "true")
+    .on_event('input', () => {
+      fighter_text_right.innerHTML = fighter_text_left.innerHTML; 
+    });
+
+const fighter_text_right =
+  div("This is some text")
+    .attr("class", "fighter_text")
+    .attr("contenteditable", "true")
+    .on_event('input', () => {
+      fighter_text_left.innerHTML = fighter_text_right.innerHTML; 
+    });
+
+
+const fighter_left = 
+  div(
+    fighter_vote_left,
+    fighter_text_left
+  )
+  .attr("class", "fighter");
+
+const fighter_right = 
+  div(
+    fighter_vote_right,
+    fighter_text_right
+  )
+  .attr("class", "fighter");
+
+const arena = 
+  div(
+    fighter_left,
+    fighter_right,
+  )
+  .attr("class", "arena");
+
+const content = 
+  div(
+    header,
+    signboard,
+    nav,
+    drop_area,
+    participant_list,
+    arena,
+  )
+  .attr("class", "content");
+
+entry.appendChild(content);
+
 
 // Fighter html elements
-const html_fighter_text_left = document.getElementById('fighter-text-left');
-const html_fighter_text_right = document.getElementById('fighter-text-right');
-const html_fighter_left = document.getElementById('fighter-left');
-const html_fighter_right = document.getElementById('fighter-right');
-const html_fighter_vote_left = document.getElementById('fighter-vote-left');
-const html_fighter_vote_right = document.getElementById('fighter-vote-right');
 
 // Buttons
-const html_start_btn = document.getElementById('start-btn');
-const html_reset_btn = document.getElementById('reset-btn');
-const html_check_btn = document.getElementById('check-btn');
-
-
-
-const html_arena = document.getElementById('arena');
-const html_participant_list = document.getElementById('participant-list');
 
 //
 // MARK:(Data)
@@ -30,34 +204,38 @@ const html_participant_list = document.getElementById('participant-list');
 let all_participants = [] // all possible participants
 let current_participants = []
 let next_participants  = []
-let fighter_left = "";
-let fighter_right = "";
+let fighter_left_name = "";
+let fighter_right_name = "";
 
 //
-// MARK:(States)
+// MARK:(Functions)
 //
 function goto_state_prepare() {
-  html_start_btn.removeAttribute("style");
-  html_fighter_right.removeAttribute("style");
-  html_fighter_vote_left.removeAttribute("style");
-  html_drop_area.removeAttribute("style");
-  html_participant_list.removeAttribute("style");
-  html_arena.removeAttribute("style");
+  start_btn.attr("style");
+  fighter_right.attr("style");
+  fighter_vote_left.attr("style");
+  drop_area.attr("style");
+  participant_list.attr("style");
+  arena.attr("style");
 
-  html_arena.style.display = "none";
+  start_btn.attr("disabled", "disabled");
+  reset_btn.attr("disabled", "disabled");
+
+  arena.style.display = "none";
   set_sign("");
   all_participants = [];
   document.fonts.clear()
   current_participants = [];
-  html_participant_list.innerHTML = "";
+  participant_list.innerHTML = "";
+  set_sign("Choose your fonts");
 }
 
 function goto_state_battle() {
-  html_drop_area.style.display = "none";
-  html_arena.style.display = "flex";
-  html_start_btn.style.display = "none";
+  drop_area.style.display = "none";
+  arena.style.display = "flex";
+  start_btn.style.display = "none";
 
-  html_participant_list.style.display = "none";
+  participant_list.style.display = "none";
   set_sign("Battle!");
 }
 
@@ -67,9 +245,9 @@ function goto_state_win() {
   set_sign("Winner: " + winner);
   set_left_fighter(winner);
 
-  html_arena.style.display = "block";
-  html_fighter_right.style.display = "none";
-  html_fighter_vote_left.style.display = "none";
+  arena.style.display = "block";
+  fighter_right.style.display = "none";
+  fighter_vote_left.style.display = "none";
 }
 
 
@@ -77,7 +255,7 @@ function goto_state_win() {
 // Main functions
 //
 function set_sign(text) {
-  html_signboard.innerHTML = text;
+  signboard.innerHTML = text;
 }
 
 function shuffle_array(array) {
@@ -97,6 +275,7 @@ function start_pvp() {
     return;
   }
 
+  console.log("Hey");
   current_participants = all_participants.slice();
   next_participants = [];
 
@@ -140,77 +319,30 @@ function advance_pvp_stage() {
 function check() {
   console.log(all_participants);
   console.log(current_participants);
-  console.log(fighter_left);
-  console.log(fighter_right);
+  console.log(fighter_left_name);
+  console.log(fighter_right_name);
   console.log(next_participants);
 }
 
 function vote_fighter(index) {
   if (index == 0)
-    next_participants.push(fighter_left);
+    next_participants.push(fighter_left_name);
   else if (index == 1) 
-    next_participants.push(fighter_right);
+    next_participants.push(fighter_right_name);
   advance_pvp_stage();
 }
 
 function set_left_fighter(font_name) {
-  fighter_left = font_name;
-  html_fighter_text_left.style.fontFamily = font_name;
+  fighter_left_name = font_name;
+  fighter_text_left.style.fontFamily = font_name;
 }
 
 function set_right_fighter(font_name) {
-  fighter_right = font_name;
-  html_fighter_text_right.style.fontFamily = font_name;
+  fighter_right_name = font_name;
+  fighter_text_right.style.fontFamily = font_name;
 }
 
-html_drop_area.addEventListener('dragover', (e) => {
-  e.preventDefault();
-  html_drop_area.style.border = '2px dashed #000';
-});
-
-html_drop_area.addEventListener('dragleave', () => {
-  html_drop_area.style.border = '2px dashed #ccc';
-});
-
-
-html_drop_area.addEventListener('drop', (e) => {
-  e.preventDefault();
-  html_drop_area.style.border = '2px dashed #ccc';
-
-  for (const file of e.dataTransfer.files) {
-    const reader = new FileReader();
-    const name = remove_extention(file.name);
-
-    reader.onload = (event) => {
-      const font_data = event.target.result;
-      const new_font = new FontFace(name, font_data);
-
-      new_font.load().then((loaded_font) => {
-        // Adding participants
-        document.fonts.add(loaded_font);
-        all_participants.push(name);
-        html_participant_list.innerHTML += name + "<br>";
-
-        // TODO: This is terribad; should set only once!
-        set_sign("Participants");
-      });
-    }
-
-    reader.readAsArrayBuffer(file);
-  };
-
-});
-
-//
-// Synchronize content between the text containers
-// 
-html_fighter_text_left.addEventListener('input', () => {
-  html_fighter_text_right.innerHTML = html_fighter_text_left.innerHTML; 
-});
-
-html_fighter_text_right.addEventListener('input', () => {
-  html_fighter_text_left.innerHTML = html_fighter_text_right.innerHTML; 
-});
 
 goto_state_prepare();
+
 
