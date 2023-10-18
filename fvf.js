@@ -1,5 +1,5 @@
 //
-// This is an attempt to write a js library used to build HTML like ReactJS
+// Thanks to tsoding. 
 //
 function tag(name, ...children) 
 {
@@ -34,6 +34,44 @@ function tag(name, ...children)
     return this;
   }
 
+  return result;
+}
+
+function router(routes) {
+  let result = div();
+  
+  // This is quite clever. We use a '#' to indicate where we are in a way.
+  function sync_hash() {
+    let hash_location = document.location.hash.split('#')[1];
+    // If there is no hash, we are at root
+    
+    if (!hash_location) {
+      hash_location = '/'
+
+    }
+  
+    if (!(hash_location in routes)) {
+      // TODO: do something when we can't find the hash.
+      const route_404 = '/404';
+      console.assert(route_404 in routes);
+      hash_location = route_404;
+    }
+
+    // Remove everything
+    while(result.firstChild) {
+      result.removeChild(result.lastChild);
+    }
+
+    // Then add the appropriate page
+    console.log(routes[hash_location]());
+    result.appendChild(routes[hash_location]());
+    return result;
+  }
+  sync_hash();
+
+  // Apparently browsers have an event to detect change in '#' location in URLs???
+  window.addEventListener("hashchange", sync_hash);
+  result.refresh = sync_hash;
   return result;
 }
 
@@ -191,7 +229,12 @@ const content =
   )
   .attr("class", "content");
 
-entry.appendChild(content);
+
+const r = router({
+  "/" : () => content
+});
+
+entry.appendChild(r);
 
 
 // Fighter html elements
