@@ -1,84 +1,3 @@
-//
-// Thanks to tsoding. 
-//
-function tag(name, ...children) 
-{
-  const result = document.createElement(name);
-  for (const child of children) {
-    if (typeof(child) === 'string') {
-      result.appendChild(document.createTextNode(child));
-    }
-    else {
-      result.appendChild(child);
-    }
-  }
-
-  result.attr = function(n, v) {
-    if (typeof(v) === "undefined") {
-      this.removeAttribute(n); 
-    }
-    else {
-      this.setAttribute(n,v);
-    }
-    return this;
-  }
-
-  result.on_click = function(callback) {
-    this.onclick = callback;
-    return this;
-  }
-
-  result.on_event = function(n, callback) {
-    //TODO: removeEventListener. We have to store the callback somehow
-    this.addEventListener(n, callback);
-    return this;
-  }
-
-  return result;
-}
-
-function router(routes) {
-  let result = div();
-  
-  // This is quite clever. We use a '#' to indicate where we are in a way.
-  function sync_hash() {
-    let hash_location = document.location.hash.split('#')[1];
-    // If there is no hash, we are at root
-    
-    if (!hash_location) {
-      hash_location = '/'
-
-    }
-  
-    if (!(hash_location in routes)) {
-      // TODO: do something when we can't find the hash.
-      const route_404 = '/404';
-      console.assert(route_404 in routes);
-      hash_location = route_404;
-    }
-
-    // Remove everything
-    while(result.firstChild) {
-      result.removeChild(result.lastChild);
-    }
-
-    // Then add the appropriate page
-    console.log(routes[hash_location]());
-    result.appendChild(routes[hash_location]());
-    return result;
-  }
-  sync_hash();
-
-  // Apparently browsers have an event to detect change in '#' location in URLs???
-  window.addEventListener("hashchange", sync_hash);
-  result.refresh = sync_hash;
-  return result;
-}
-
-const tag_types = ["div", "img", "h1", "h2", "h3", "span", "p", "button", "hr"]
-for (const type of tag_types) {
-  window[type] = (...children) => tag(type, ...children)
-}
 
 //
 // MARK:(HTML)
@@ -94,7 +13,7 @@ for (const type of tag_types) {
 // header
 const header = 
   div("Font vs Font!")
-    .attr("class", "header");
+    .attr("class", "header space");
   
 // nav
 const start_btn = 
@@ -108,8 +27,12 @@ const reset_btn =
     .on_click(goto_state_prepare);
 
 const nav = 
-  div(start_btn, reset_btn)
-    .attr("class", "nav");
+  div(
+    start_btn, 
+    div().attr("class", "nav_button_seperator"),
+    reset_btn
+  )
+  .attr("class", "nav space");
 
 
 // drop area
@@ -118,10 +41,9 @@ const drop_area =
     p("Drag and drop font files here for them to participate!"),
     p("(We need at least 2 fonts!)")
   )
-  .attr("class", "drop_area")
+  .attr("class", "drop_area space")
   .on_event('drop', (e) => {
     e.preventDefault();
-    drop_area.style.border = '2px dashed #aa9374';
 
     for (const file of e.dataTransfer.files) {
       const reader = new FileReader();
@@ -136,6 +58,8 @@ const drop_area =
           // Adding participants
           document.fonts.add(loaded_font);
           all_participants.push(name);
+
+          participants.style.display = "block";
           participant_list.innerHTML += name + "<br>";
 
 
@@ -151,23 +75,28 @@ const drop_area =
 
   })
   .on_event('dragleave', () => {
-    drop_area.style.border = '2px dashed #aa9374';
+    //drop_area.style.border = '2px dashed #aa9374';
   })
   .on_event('dragover', (e) => {
     e.preventDefault();
-    drop_area.style.border = '2px dashed #aa9374';
+    //drop_area.style.border = '2px dashed #aa9374';
   });
 
 
 // signboard
 const signboard = 
   div()
-    .attr("class", "signboard");
+    .attr("class", "signboard space");
 
 // participant list
-const participant_list = 
-  div()
-    .attr("class", "participant_list");
+const participant_list = span().attr("class", "participants_list")
+const participants =
+  div(
+    div("Participating Fonts").attr("class", "participants_header"),
+    hr(),
+    participant_list
+  )
+  .attr("class", "participants");
 
 // arena
 const fighter_vote_left =
@@ -182,7 +111,7 @@ const fighter_vote_right =
 
 const fighter_text_left =
   div("This is some text")
-    .attr("class", "fighter_text")
+    .attr("class", "fighter_text space")
     .attr("contenteditable", "true")
     .on_event('input', () => {
       fighter_text_right.innerHTML = fighter_text_left.innerHTML; 
@@ -190,7 +119,7 @@ const fighter_text_left =
 
 const fighter_text_right =
   div("This is some text")
-    .attr("class", "fighter_text")
+    .attr("class", "fighter_text space")
     .attr("contenteditable", "true")
     .on_event('input', () => {
       fighter_text_left.innerHTML = fighter_text_right.innerHTML; 
@@ -214,17 +143,21 @@ const fighter_right =
 const arena = 
   div(
     fighter_left,
+    div().attr("class", "seperator"),
     fighter_right,
   )
   .attr("class", "arena");
 
 const content = 
   div(
-    header,
+    div("Font vs Font")
+      .attr("class", "header space"),
+    hr()
+      .attr("class", "line"),
     signboard,
     nav,
     drop_area,
-    participant_list,
+    participants,
     arena,
   )
   .attr("class", "content");
@@ -254,31 +187,34 @@ let fighter_right_name = "";
 // MARK:(Functions)
 //
 function goto_state_prepare() {
+
+  all_participants = [];
+  document.fonts.clear()
+  current_participants = [];
+
   start_btn.attr("style");
   fighter_right.attr("style");
   fighter_vote_left.attr("style");
   drop_area.attr("style");
-  participant_list.attr("style");
+  participants.attr("style");
   arena.attr("style");
 
   start_btn.attr("disabled", "disabled");
   reset_btn.attr("disabled", "disabled");
 
   arena.style.display = "none";
-  set_sign("");
-  all_participants = [];
-  document.fonts.clear()
-  current_participants = [];
+  participants.style.display = "none";
   participant_list.innerHTML = "";
+
   set_sign("Choose your fonts");
 }
 
 function goto_state_battle() {
   drop_area.style.display = "none";
   arena.style.display = "flex";
-  start_btn.style.display = "none";
+  start_btn.attr("disabled", "disabled");
 
-  participant_list.style.display = "none";
+  participants.style.display = "none";
   set_sign("Battle!");
 }
 
@@ -318,7 +254,6 @@ function start_pvp() {
     return;
   }
 
-  console.log("Hey");
   current_participants = all_participants.slice();
   next_participants = [];
 
@@ -341,7 +276,6 @@ function advance_pvp_stage() {
     current_participants = next_participants.slice();
     next_participants = [];
     shuffle_array(current_participants);
-    console.log("NEXT STAGE");
   }
 
   //
